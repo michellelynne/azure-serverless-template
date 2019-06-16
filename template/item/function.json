@@ -1,0 +1,34 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "request",
+      "route": "item/{id:int?}",
+      "methods": [
+        "delete",
+        "get",
+        "post",
+        "put"
+      ]
+    },
+    {
+      "direction": "out",
+      "type": "cosmosDB",
+      "name": "outdoc",
+      "databaseName": "items",
+      "collectionName": "items",
+      "leaseCollectionName": "leases",
+      "createLeaseCollectionIfNotExists": true,
+      "connectionStringSetting": "AzureWebJobsCosmosDBConnectionString",
+      "createIfNotExists": true
+    },
+    {
+        "type": "http",
+        "direction": "out",
+        "name": "$return"
+    }
+  ]
+}

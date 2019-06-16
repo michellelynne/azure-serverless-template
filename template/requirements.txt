@@ -1,0 +1,2 @@
+simplejson
+azure-cosmos
