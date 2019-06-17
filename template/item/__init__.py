@@ -1,14 +1,9 @@
-import simplejson as json
+import json
 import logging
 import os
 
 import azure.functions as func
 from azure.cosmos import cosmos_client
-
-CLIENT = cosmos_client.CosmosClient(
-    url_connection=os.getenv('CosmosDBHost'),
-    auth={'masterKey': os.getenv('CosmosDBMasterKey')}
-)
 
 
 def main(request: func.HttpRequest, outdoc: func.Out[func.Document]) -> func.HttpResponse:
@@ -19,7 +14,7 @@ def main(request: func.HttpRequest, outdoc: func.Out[func.Document]) -> func.Htt
         if item_id:
             return func.HttpResponse(json.dumps(get_item_from_collection(item_id)))
         else:
-            return func.HttpResponse(get_items_from_collection())
+            return func.HttpResponse(json.dumps(get_items_from_collection()))
     elif request.method == 'POST':
         outdata = {'items': [request.get_json()]}
         outdoc.set(func.Document.from_json(json.dumps(outdata)))
@@ -32,31 +27,18 @@ def main(request: func.HttpRequest, outdoc: func.Out[func.Document]) -> func.Htt
         outdoc.set(func.Document.from_json(json.dumps(outdata)))
         return func.HttpResponse(json.dumps(outdata))
 
-    # query = {'query': 'SELECT * FROM server s'}
-    # SELECT * FROM c WHERE c.id = "1"
 
-    # print()
-    # _id = request.params.get('id')
-    #
-    # name = request.params.get('name')
-    # if not name:
-    #     try:
-    #         req_body = request.get_json()
-    #     except ValueError:
-    #         pass
-    #     else:
-    #         name = req_body.get('name')
-    # if request.method == 'POST':
-    #     outdata = {'items': [request.get_json()]}
-    #     outdoc.set(func.Document.from_json(json.dumps(outdata)))
-    #     return func.HttpResponse(json.dumps(outdata))
-    # elif request.method == 'GET':
-    #     return func.HttpResponse(f"Hello {name}!")
-    # else:
-    #     return func.HttpResponse(
-    #          "Please pass a name on the query string or in the request body",
-    #          status_code=400
-    #     )
+def get_cosmos_client():
+    """Get the client for all CosmosDB queries.
+
+    Returns:
+        CosmosClient
+
+    """
+    return cosmos_client.CosmosClient(
+        url_connection=os.getenv('CosmosDBHost'),
+        auth={'masterKey': os.getenv('CosmosDBMasterKey')}
+    )
 
 
 def get_items_from_collection():
@@ -66,7 +48,8 @@ def get_items_from_collection():
         List<dict>: All items from a collection.
     """
     collection = get_collection()
-    result_iterable = CLIENT.QueryItems(
+    client = get_cosmos_client()
+    result_iterable = client.QueryItems(
         collection['_self'],
         {'query': 'SELECT * FROM server c'},
         {'enableCrossPartitionQuery': True}
@@ -84,7 +67,8 @@ def get_item_from_collection(item_id):
         dict: Single item from a collection.
     """
     collection = get_collection()
-    result_iterable = CLIENT.QueryItems(
+    client = get_cosmos_client()
+    result_iterable = client.QueryItems(
         collection['_self'],
         {'query': 'SELECT * FROM server c WHERE c.id = \"{}\"'.format(item_id)},
         {'enableCrossPartitionQuery': True}
@@ -97,7 +81,8 @@ def get_collection():
     database_id = os.getenv('DatabaseID')
     collection_id = os.getenv('CollectionID')
     collection_link = 'dbs/{}/colls/{}'.format(database_id, collection_id)
-    return CLIENT.ReadContainer(collection_link)
+    client = get_cosmos_client()
+    return client.ReadContainer(collection_link)
 
 #
 # def main(mytimer: func.TimerRequest, outdoc: func.Out[func.Document]):

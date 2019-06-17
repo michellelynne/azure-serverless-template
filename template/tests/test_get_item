@@ -1,0 +1,33 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: http://0.0.0.0:7071/api/item/1
+  response:
+    body:
+      string: '{"id": "1", "attribute1": "apple", "attribute2": "grape", "_rid": "FcQHAKhU+8MBAAAAAAAAAA==",
+        "_self": "dbs/FcQHAA==/colls/FcQHAKhU+8M=/docs/FcQHAKhU+8MBAAAAAAAAAA==/",
+        "_etag": "\"9501898c-0000-0700-0000-5cfc16e90000\"", "_attachments": "attachments/",
+        "_ts": 1560024809}'
+    headers:
+      Content-Length:
+      - '272'
+      Content-Type:
+      - text/plain; charset=utf-8
+      Date:
+      - Mon, 17 Jun 2019 04:53:20 GMT
+      Server:
+      - Kestrel
+    status:
+      code: 200
+      message: OK
+version: 1
